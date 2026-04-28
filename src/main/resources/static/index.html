@@ -112,7 +112,14 @@
 
     <button onclick="checkViolation()">Check Violation</button>
 
-    <div id="result" class="result"></div>
+    <button onclick="loadHistory()" style="margin-top:10px; background:#444;">
+        View History
+    </button>
+
+    <div id="result" class="result">Enter details and click Check</div>
+
+    <div id="historyContainer" style="margin-top:20px;"></div>
+
 </div>
 
 <script>
@@ -125,7 +132,7 @@
             emergency: document.getElementById("emergency").checked
         };
 
-        fetch("/traffic/check", {
+        fetch(window.location.origin + "/traffic/check", {
     method: "POST",
     headers: {
         "Content-Type": "application/json"
@@ -141,7 +148,7 @@
 .then(data => {
     let resultText = "";
 
-    if (data.fine && data.fine > 0) {
+    if (data.fine > 0) {
         resultText = `🚨 Violation detected!\nFine: ₹${data.fine}`;
     } else {
         resultText = "✅ No violation";
@@ -153,6 +160,52 @@
     document.getElementById("result").innerText = "Error processing request";
 });
     }
+    function loadHistory() {
+
+    fetch(window.location.origin + "/traffic/history")
+        .then(res => res.json())
+        .then(data => {
+
+            if (!data || data.length === 0) {
+                document.getElementById("historyContainer").innerHTML =
+                    "<p>No history available</p>";
+                return;
+            }
+
+            let table = `
+                <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                    <tr style="background:#2a5298; color:white;">
+                        <th style="padding:8px;">Vehicle ID</th>
+                        <th style="padding:8px;">Speed</th>
+                        <th style="padding:8px;">Zone</th>
+                        <th style="padding:8px;">Fine</th>
+                    </tr>
+            `;
+
+            data.forEach(v => {
+                let rowColor = v.fine > 0 ? "#ffe5e5" : "#e6ffed";
+
+                table += `
+                    <tr style="background:${rowColor}; text-align:center;">
+                        <td style="padding:8px;">${v.vehicleId}</td>
+                        <td style="padding:8px;">${v.speed}</td>
+                        <td style="padding:8px;">${v.zone}</td>
+                        <td style="padding:8px; font-weight:bold;">
+                            ${v.fine > 0 ? "₹" + v.fine : "No Fine"}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            table += "</table>";
+
+            document.getElementById("historyContainer").innerHTML = table;
+        })
+        .catch(() => {
+            document.getElementById("historyContainer").innerHTML =
+                "<p style='color:red;'>Error loading history</p>";
+        });
+}
 </script>
 
 </body>
