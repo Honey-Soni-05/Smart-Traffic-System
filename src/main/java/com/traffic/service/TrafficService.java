@@ -5,15 +5,40 @@ import com.traffic.model.*;
 public class TrafficService {
 
     public static Violation process(VehicleEvent event) {
-        if (event.speed > 80 && !event.emergency) {
+
+        // 🚑 Emergency → no violation
+        if (event.isEmergency()) {
+            return new Violation(
+                    event.getVehicleId(),
+                    event.getSpeed(),
+                    event.getZone(),
+                    0
+            );
+        }
+
+        // 🚦 Speed check
+        if (event.getSpeed() > 80) {
 
             int fine;
-            if (event.speed > 120) fine = 5000;
-            else if (event.speed > 100) fine = 2000;
+
+            if (event.getSpeed() > 120) fine = 5000;
+            else if (event.getSpeed() > 100) fine = 2000;
             else fine = 1000;
 
-            return new Violation(event.vehicleId, event.speed, event.zone, fine);
+            return new Violation(
+                    event.getVehicleId(),
+                    event.getSpeed(),
+                    event.getZone(),
+                    fine
+            );
         }
-        return null;
+
+        // ✅ No violation
+        return new Violation(
+                event.getVehicleId(),
+                event.getSpeed(),
+                event.getZone(),
+                0
+        );
     }
 }
