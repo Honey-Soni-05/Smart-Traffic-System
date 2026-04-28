@@ -126,25 +126,24 @@
         };
 
         fetch("/traffic/check", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        })
-        .then(res => res.json())
-        .then(result => {
-            document.getElementById("result").className = "result success";
-            document.getElementById("result").innerText =
-                "Vehicle: " + result.vehicleId + "\n" +
-                "Speed: " + result.speed + "\n" +
-                "Zone: " + result.zone + "\n" +
-                "Fine: ₹" + result.fine;
-        })
-        .catch(err => {
-            document.getElementById("result").className = "result error";
-            document.getElementById("result").innerText = "Error processing request";
-        });
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        vehicleId: document.getElementById("vehicleId").value,
+        speed: parseInt(document.getElementById("speed").value),
+        zone: document.getElementById("zone").value,
+        emergency: document.getElementById("emergency").checked
+    })
+})
+.then(res => res.text())
+.then(data => {
+    document.getElementById("result").innerText = data;
+})
+.catch(err => {
+    document.getElementById("result").innerText = "Error processing request";
+});
     }
 </script>
 
