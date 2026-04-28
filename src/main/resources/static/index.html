@@ -137,9 +137,17 @@
         emergency: document.getElementById("emergency").checked
     })
 })
-.then(res => res.text())
+.then(res => res.json())
 .then(data => {
-    document.getElementById("result").innerText = data;
+    let resultText = "";
+
+    if (data.fine && data.fine > 0) {
+        resultText = `🚨 Violation detected!\nFine: ₹${data.fine}`;
+    } else {
+        resultText = "✅ No violation";
+    }
+
+    document.getElementById("result").innerText = resultText;
 })
 .catch(err => {
     document.getElementById("result").innerText = "Error processing request";
